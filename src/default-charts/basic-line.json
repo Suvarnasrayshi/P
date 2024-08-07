@@ -1,0 +1,30 @@
+{
+  "chart": {
+    "type": "line"
+  },
+  "plotOptions": {
+    "line": {
+      "animation": false
+    }
+  },
+  "series": [
+    {
+      "color": "red"
+    },
+    {
+      "color": "purple"
+    },
+    {
+      "color": "cyan"
+    },
+    {
+      "color": "brown"
+    },
+    {
+      "color": "yellow"
+    },
+    {
+      "color": "green"
+    }
+  ]
+}

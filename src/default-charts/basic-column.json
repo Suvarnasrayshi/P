@@ -1,0 +1,31 @@
+{
+  "chart": {
+    "type": "column"
+  },
+  "xAxis": {
+    "categories": [
+      "default 1",
+      "default 2",
+      "default 3",
+      "default 4",
+      "default 5"
+    ]
+  },
+  "plotOptions": {
+    "column": {
+      "allowPointSelect": true,
+      "animation": false
+    }
+  },
+  "series": [
+    {
+      "color": "yellow"
+    },
+    {
+      "color": "cyan"
+    },
+    {
+      "color": "grey"
+    }
+  ]
+}

@@ -1,0 +1,709 @@
+"
+<html>
+  <head>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&display=swap');
+      body {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 16px;
+      }
+      *,
+      ::after,
+      ::before {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      .codelos-page-content {
+        position: relative;
+        margin: 0 auto;
+        padding: 40px 35px;
+        min-height: 50vh;
+      }
+      .codelos-page-content .column {
+        border: 2px solid gray;
+      }
+      .element-block {
+        margin: 0 0 10px;
+        padding: 0;
+      }
+      .drop-zone-line {
+        border-style: solid;
+        border-width: 0;
+        border-color: #222;
+      }
+      .drop-zone-line.bottom-line {
+        border-bottom-width: 2px;
+      }
+      .element-wrapper {
+        position: relative;
+        transition: all 300ms ease-in-out;
+      }
+      .element-wrapper .draggible-icon {
+        position: absolute;
+        left: -30px;
+        top: 0;
+        transition: all 300ms ease-in-out;
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        border-radius: 4px;
+        font-size: 20px;
+        color: #9f9f9f;
+        opacity: 0;
+      }
+      .element-wrapper .draggible-icon svg {
+        position: relative;
+        top: 5px;
+      }
+      .codelos-anchor-block .element-wrapper .draggible-icon svg {
+        top: 4px;
+      }
+      .codelos-text-block .element-wrapper .draggible-icon svg {
+        top: 2px;
+      }
+      .codelos-header-one-block .element-wrapper .draggible-icon svg,
+      .codelos-header-two-block .element-wrapper .draggible-icon svg {
+        top: 10px;
+      }
+      .element-wrapper:hover > .draggible-icon {
+        opacity: 1;
+      }
+      .element-wrapper .draggible-icon:focus {
+        background: #eee;
+      }
+      .codelos-row-block {
+        display: flex;
+        justify-content: space-between; /* border: 1px solid gray; */
+      }
+      .codelos-row-block .codelos-col-block > div {
+        height: 100%;
+        min-height: 100px;
+      }
+      .codelos-row-block .codelos-col-block > div {
+        height: 100%;
+        min-height: 100px;
+      }
+      .codelos-header-one-block {
+        font-size: 26px;
+        color: inherit;
+        font-weight: 600;
+      }
+      .codelos-header-two-block {
+        font-size: 22px;
+        font-weight: 600;
+        color: inherit;
+      }
+      .codelos-header-three-block {
+        font-size: 20px;
+        font-weight: 600;
+        color: inherit;
+      }
+      .codelos-header-three-block .is-empty {
+        opacity: 0.3;
+        cursor: text;
+      }
+      img {
+        max-width: 100%;
+      }
+      .codelos-image-block img {
+        max-width: 100%;
+        max-height: 200px;
+      }
+      .pseudoBefore:before {
+        color: var(--pseudoBefore--color);
+        content: var(--pseudoBefore--content);
+        font-family: var(--pseudoBefore--fontFamily);
+      } /*unordered list*/
+      .codelos-bulleted-list-wrap-block {
+        display: flex;
+        align-items: flex-start;
+        width: 100%;
+        padding-left: 2px;
+        color: inherit;
+        fill: inherit;
+      }
+      .codelos-bulleted-list-bullet {
+        user-select: none;
+        --pseudoSelection--background: transparent;
+        margin-right: 2px;
+        width: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        flex-grow: 0;
+        flex-shrink: 0;
+        min-height: calc(1.5em + 3px + 3px);
+      }
+      .pseudoBefore {
+        font-size: 1.5em;
+        line-height: 1;
+        margin-bottom: 0px;
+        --pseudoBefore--fontFamily: Arial;
+        --pseudoBefore--content: '•';
+      }
+      .codelos-bulleted-list-content-wrap {
+        flex: 1 1 0px;
+        min-width: 1px;
+        display: flex;
+        flex-direction: column;
+      }
+      .codelos-bulleted-list-content-inner {
+        display: flex;
+        padding: 3px 2px;
+      }
+      .codelos-anchor-block a {
+        padding: 4px 0;
+        font-size: 16px;
+        color: inherit;
+      }
+      [contenteditable='true'].is-empty:before {
+        content: attr(placeholder);
+        display: block;
+      }
+      .codelos-header-one-block .is-empty,
+      .codelos-header-two-block .is-empty,
+      .codelos-text-block .is-empty,
+      .codelos-input-block .is-empty,
+      .codelos-header-three-block .is-empty {
+        opacity: 0.3;
+        cursor: text;
+      }
+      .codelos-hr-block .is-empty {
+        min-height: 30px;
+      }
+      .codelos-text-block .codelos-input-block {
+        padding-bottom: 0;
+        padding-top: 0;
+      }
+      .codelos-text-block.element-block {
+        /* margin-bottom: 0; */
+      }
+      .codelos-text-block .element-wrapper .draggible-icon svg {
+        top: 2px;
+      }
+      .codelos-header-three-block {
+        font-size: 20px;
+        font-weight: 600;
+        color: inherit;
+      }
+      .codelos-table-block >>> .clone-list {
+        display: flex;
+      }
+      .codelos-table-block >>> .dragging {
+        cursor: move;
+        user-select: none;
+        background: rgba(255, 255, 255, 0.4) !important;
+        box-shadow: 0px 0px 4px rgb(0 0 0 / 15%);
+        z-index: 1;
+        border: 2px solid #74b6db;
+      }
+      .codelos-table-block >>> .placeholder {
+        background: rgb(0, 0, 0, 0.1) !important;
+      }
+      .codelos-table-block >>> .placeholder-table tr {
+        height: 43px;
+        padding: 5px 0;
+        border-bottom: 1px solid #e9e9e7;
+      }
+      .codelos-table-block >>> .placeholder-table {
+        background: #fff;
+        height: 100%;
+        border: 1px solid #e9e9e7;
+      }
+      .codelos-table-block >>> .table-wrap {
+        margin-right: auto;
+        margin-left: 0;
+        padding-top: 0;
+        max-width: 90%;
+        width: auto;
+        display: inline-block;
+      }
+      .codelos-table-block >>> .table-wrap table {
+        width: auto;
+      } /* .codelos-table-block >>> .add-new-col {      top: calc(50% - 51px);    } */
+      .codelos-table-block >>> .table-centered {
+        margin-left: 0;
+        margin-right: auto;
+      }
+      .codelos-table-block.full-width >>> .table-centered {
+        width: 100%;
+      }
+      .codelos-table-block.full-width >>> .table-centered .table-wrap {
+        width: 100%;
+        max-width: 100%;
+      }
+      .codelos-table-block.full-width >>> .table-centered .table-wrap table {
+        width: 100%;
+      }
+      .codelos-table-block >>> .add-new-col {
+        top: 0;
+      }
+      .codelos-table-block >>> .add-new-col button {
+        height: 100%;
+      }
+      .codelos-table-block .codelos-table-header td {
+        font-weight: 600;
+        font-size: 18px;
+        color: #212529;
+      }
+      .codelos-hr-block {
+        position: relative;
+      }
+      .codelos-hr-block:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 2px;
+        width: calc(100% - 30px);
+        background: rgb(204, 204, 204);
+      }
+      .codelos-main-header {
+        background: #f6f6f6;
+        border: 1px solid #e9e9e7;
+        border-bottom: none;
+        padding: 8px 15px;
+        min-height: 40px;
+        font-weight: 700;
+        font-size: 20px;
+      }
+      .codelos-main-header input {
+        background: transparent !important;
+        font-weight: 700;
+        font-size: 20px;
+        color: inherit;
+      }
+      .table-centered {
+        width: 100%;
+        margin: 0 auto;
+      }
+      .table-wrap {
+        position: relative;
+        max-width: 100%;
+        margin: 0 auto;
+        padding-top: 30px;
+        width: 100%;
+      }
+      .table-wrap table {
+        width: 100%;
+        border-spacing: unset;
+        position: relative;
+        margin: 0 !important;
+        border: 1px solid #e9e9e7;
+      }
+      td,
+      th {
+        position: relative;
+        border-bottom: 1px solid #e9e9e7;
+      } /* td:first-child {            border-left: 1px solid #e9e9e7;          }          td:last-child {            border-right: 1px solid #e9e9e7;          } */
+      tr.selected {
+        border-color: #74b6db;
+        border-width: 2px;
+      }
+      table tr td.selected,
+      table tr th.selected {
+        border-left-width: 2px;
+        border-right-width: 2px;
+        border-right-color: #74b6db;
+        border-left-color: #74b6db;
+      }
+      table tr:first-child td.selected {
+        border-top-width: 2px;
+        border-top-color: #5eb8d8;
+      }
+      table tr:last-child td.selected {
+        border-bottom-width: 2px;
+        border-bottom-color: #5eb8d8;
+      }
+      table tr.abc td.selected,
+      table tr.abc th.selected {
+        border-top-width: 2px;
+        border-top-color: #74b6db;
+      }
+      td.selected:before,
+      th.selected:before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background: #eee;
+      }
+      table tr td.cellSelected,
+      table tr th.cellSelected {
+        border-color: #74b6db;
+        border-width: 2px;
+        border-top: 2px solid #74b6db;
+      }
+      .add-new-col {
+        position: absolute;
+        top: 30px;
+        left: 100%;
+        overflow: hidden;
+        opacity: 0;
+        transition: all 400ms ease-in-out;
+        transform-origin: right top;
+        height: calc(100% - 16px);
+      }
+      .add-new-col button {
+        width: 16px;
+        height: calc(100% - 30px);
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        border-radius: 2px;
+      }
+      .add-new-row button {
+        width: 100%;
+        height: 16px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        border-radius: 2px;
+      }
+      .add-new-col:hover,
+      .add-new-row:hover {
+        opacity: 1;
+        box-shadow: none;
+        color: #fff;
+      }
+      .add-new-row {
+        opacity: 0;
+        transition: all 400ms ease-in-out;
+        text-align: center;
+        color: #000; /* margin-top: 20px; */
+      }
+      .row-selector,
+      .column-selector {
+        position: absolute;
+        background: rgb(182 182 182);
+        width: 25px;
+        height: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        color: #fff;
+        transition: all 300ms ease-in-out;
+      }
+      .row-selector:hover,
+      .column-selector:hover {
+        background: #5c636a;
+      }
+      .row-selector {
+        left: -12.5px;
+        z-index: 1;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      .column-selector {
+        position: absolute;
+        top: -12.5px;
+        z-index: 1;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+      }
+      .custom-backdrop {
+        z-index: 1;
+        background: transparent;
+      }
+      .column-selector svg {
+        transform: rotate(90deg);
+      }
+      input {
+        background: #fff !important;
+        border: none !important;
+        border-radius: 0;
+        padding: 8px 15px;
+        min-height: 40px;
+        width: 100%;
+      }
+      input:focus {
+        outline: none;
+      }
+      .theme--light.v-icon {
+        color: rgb(0, 0, 0, 0.82);
+      }
+      .row-model {
+        position: fixed;
+        z-index: 1;
+        padding: 10px;
+        box-shadow: 0px 0px 3px rgb(137 135 135);
+        background: #fff;
+        border-radius: 4px;
+        width: 200px;
+        min-height: 100px;
+        top: 0;
+        left: 0;
+        z-index: 99999;
+      }
+      .row-model ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        text-align: left;
+      }
+      .close-btn {
+        position: absolute;
+        right: 10px;
+        font-size: 12px;
+        top: 10px;
+      }
+      .row-model-content ul span:hover {
+        background: #eee;
+      }
+      .table-body {
+        display: table-row-group;
+        vertical-align: middle;
+      }
+      .codelos-table-header td input {
+        font-weight: 600;
+        font-size: 18px;
+      } /* Dropping Highlighter */
+      .dropzone-line {
+        position: absolute;
+        margin-left: -1px;
+        margin-top: -1px;
+        transition: background 150ms ease 50ms;
+        background: #74b6db;
+        padding: 0px;
+        box-shadow: none;
+        border: none;
+        z-index: 1;
+      }
+      .dropzone-line.verticle {
+        height: calc(100% + 2px);
+        width: 2px;
+      }
+      .dropzone-line.horizontal {
+        width: calc(100% + 2px);
+        height: 2px;
+      }
+      .dropzone-line.top,
+      .dropzone-line.left {
+        top: 0;
+        left: 0;
+      }
+      .dropzone-line.bottom {
+        bottom: 0;
+        left: 0;
+      }
+      .dropzone-line.right {
+        right: 0;
+        top: 0;
+      }
+      table td {
+        font-size: 16px;
+        color: #212529;
+        padding: 8px 15px;
+        height: 40px;
+      }
+      table tr:last-child td {
+        border-bottom: 0px;
+      }
+      @media print {
+        .element-wrapper {
+          page-break-inside: avoid;
+        }
+      }
+      .codelos-table-block.full-width .table-centered .table-wrap table {
+        width: 100%;
+      }
+      .codelos-table-block .table-wrap table {
+        width: auto;
+      }
+      .table-cell-content {
+        min-width: 167px;
+      }
+    </style>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script>
+      let randomId = null;
+    </script>
+  </head>
+  <body>
+    <div data-v-84b6d196="" class="header-wrap">
+      <div data-v-84b6d196="" class="header-strap"></div>
+      <div data-v-84b6d196="" class="header-inner">
+        <div data-v-84b6d196="">
+          <div data-v-84b6d196="" id="img">
+            <img
+              data-v-84b6d196=""
+              src="https://www.notion.so/icons/apple_green.svg?mode=light"
+              alt=""
+            />
+          </div>
+        </div>
+        <div data-v-84b6d196="">
+          <div
+            data-v-84b6d196=""
+            id="title"
+            placeholder="Title"
+            contenteditable="true"
+            class="codelos-header-one-block"
+          >
+            Der Titel des Page Builders wird hier sein...
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      data-v-84b6d196=""
+      id="codelos-page-content"
+      class="codelos-page-content"
+    >
+      <div data-v-ecb0e232="" data-v-84b6d196="" seteventlisteners="true">
+        <div data-v-ecb0e232="">
+          <div
+            data-v-ecb0e232=""
+            class="element-block drop-zone-line codelos-table-block"
+            draggable="false"
+          >
+            <div data-v-ecb0e232="" class="element-wrapper">
+              <div
+                data-v-ecb0e232=""
+                id="0_ebc1da1d-53d3-496b-acdc-bb949e8924ce"
+              >
+                <div data-v-7a635c24="" data-v-ecb0e232="" class="demo">
+                  <div data-v-7a635c24="" class="table-centered">
+                    <div data-v-7a635c24="" class="table-wrap">
+                      <div data-v-7a635c24="" class="codelos-main-header">
+                        <div id="heading">sadasd sadsa s adsad</div>
+                      </div>
+                      <table data-v-7a635c24="" id="table" class="table">
+                        <tbody>
+                          <tr
+                            data-v-7a635c24=""
+                            id="tableRowIndex-0"
+                            draggable="true"
+                            class=""
+                          >
+                            <td data-v-7a635c24="" class="">
+                              <div
+                                class="table-cell-content"
+                                id="tableContent-0-0"
+                              >
+                                dsa
+                              </div>
+                            </td>
+                            <td data-v-7a635c24="" class="">
+                              <div
+                                class="table-cell-content"
+                                id="tableContent-0-1"
+                              >
+                                sad
+                              </div>
+                            </td>
+                          </tr>
+                          <tr
+                            data-v-7a635c24=""
+                            id="tableRowIndex-1"
+                            draggable="true"
+                            class=""
+                          >
+                            <td data-v-7a635c24="" class="">
+                              <div
+                                class="table-cell-content"
+                                id="tableContent-1-0"
+                              >
+                                sad
+                              </div>
+                            </td>
+                            <td data-v-7a635c24="" class="">
+                              <div
+                                class="table-cell-content"
+                                id="tableContent-1-1"
+                              >
+                                sad
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div data-v-7a635c24="" class="add-new-col"></div>
+                      <div data-v-7a635c24="" class="add-new-row"></div>
+                    </div>
+                  </div>
+                  <div data-v-7a635c24="" style="display: none">
+                    <div
+                      data-v-7a635c24=""
+                      id="row-overly"
+                      class="modal-backdrop custom-backdrop"
+                    ></div>
+                    <div
+                      data-v-7a635c24=""
+                      class="row-model"
+                      style="transform: translate(55.5px, 355px)"
+                    >
+                      <div data-v-7a635c24="" class="row-model-content">
+                        <ul data-v-7a635c24="">
+                          <li data-v-7a635c24="">
+                            <span data-v-7a635c24=""
+                              >Überschrift entfernen</span
+                            >
+                          </li>
+                          <li data-v-7a635c24="">
+                            <span data-v-7a635c24="">Kopfzeile</span>
+                          </li>
+                          <li data-v-7a635c24="">
+                            <span data-v-7a635c24="">löschen</span>
+                          </li>
+                          <li data-v-7a635c24="">
+                            <span data-v-7a635c24="">Oben einfügen</span>
+                          </li>
+                          <li data-v-7a635c24="">
+                            <span data-v-7a635c24="">Unten einfügen</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div data-v-7a635c24="" style="display: none">
+                    <div
+                      data-v-7a635c24=""
+                      id="col-overly"
+                      class="modal-backdrop custom-backdrop"
+                    ></div>
+                    <div
+                      data-v-7a635c24=""
+                      class="row-model"
+                      style="transform: translate(0px, 0px)"
+                    >
+                      <div data-v-7a635c24="" class="row-model-content">
+                        <ul data-v-7a635c24="">
+                          <li data-v-7a635c24="">
+                            <span data-v-7a635c24="">löschen</span>
+                          </li>
+                          <li data-v-7a635c24="">
+                            <span data-v-7a635c24="">Links einfügen</span>
+                          </li>
+                          <li data-v-7a635c24="">
+                            <span data-v-7a635c24="">Rechts einfügen</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+"

@@ -1,0 +1,51 @@
+{
+  "name": "@codelos.io/page-builder",
+  "version": "0.1.71",
+  "description": "A page builder component for vue 2 to create the reports, notes etc. Just like notion.",
+  "author": {
+    "name": "Louq Gharnati",
+    "email": "louq@gharnati.com"
+  },
+  "repository": "https://gitlab.com/codelos-workflow-tasks/page-builder",
+  "scripts": {
+    "dev": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "build-library": "vue-cli-service build --target lib --name page-builder ./src/install.js",
+    "lint": "vue-cli-service lint"
+  },
+  "main": "dist/page-builder.common.js",
+  "files": [
+    "dist/*",
+    "src/*",
+    "public/*",
+    "*.json",
+    "*.js"
+  ],
+  "dependencies": {
+    "@codelos.io/table-builder": "^0.1.18",
+    "bootstrap": "^5.2.3",
+    "bootstrap-vue": "^2.23.1",
+    "core-js": "^3.8.3",
+    "highcharts": "10.2.0",
+    "uuid": "^9.0.0",
+    "vue": "^2.6.14",
+    "vue-router": "^3.5.1",
+    "vuejs-ace-editor": "^1.0.1",
+    "vuex": "^3.6.2",
+    "yarn": "^1.22.22"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.16",
+    "@babel/eslint-parser": "^7.12.16",
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-plugin-eslint": "~5.0.0",
+    "@vue/cli-plugin-router": "~5.0.0",
+    "@vue/cli-plugin-vuex": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-vue": "^8.0.3",
+    "sass": "^1.32.7",
+    "sass-loader": "^12.0.0",
+    "vue-template-compiler": "^2.6.14"
+  }
+}
