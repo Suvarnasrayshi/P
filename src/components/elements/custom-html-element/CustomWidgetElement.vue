@@ -3,39 +3,41 @@
     class="codelos-html-wrapper"
   >
  
-  <div class="editor-container">
-    <div :class=" { 'split-view': isSplitView }">
   <div class="html-element-menu-dropdown">
     <div class="icon-circle-wand" @click="alert">
-
+      
       <img src="../../../assets/magic.png" class="rounded mx-auto d-block" alt="...">
     </div>
     <div class="space-in-between">
-
+      
     </div>
     <!-- if slitscreen is there then this eye should not show -->
-    <div class="icon-circle-code" @click="getcode" v-if="!isSplitView">
+    <div class="icon-circle-code" @click="getcode" v-if="isCodeView">
       <img src="../../../assets/eye.png" class="rounded mx-auto d-block" alt="...">
+    </div>
+    
+    <div class="icon-circle-code" @click="showCode" v-if="!isCodeView">
+      <img src="../../../assets/code.png" class="rounded mx-auto d-block" alt="...">
+    </div>
   </div>
-
-  <div class="icon-circle-code" @click="showCode">
-    <img src="../../../assets/code.png" class="rounded mx-auto d-block" alt="...">
+  <div class="editor-container">
+    <div :class=" { 'split-view': isSplitView }">
+<div v-if="!isCodeView">
+  <CustomAceCodeEditor
+  :key="nodeElement.id"
+  @onCodeInput="onCodeInput"
+  :codeValue="nodeElement.value"
+  id="getthedata"
+  class="code-editor"
+  />
 </div>
-<div v-if="!isCodeView && isSplitView" class="output-view">
+<div v-else class="output-data">
   <div v-html="nodeElement.value"></div>
 </div>
-  </div>
-    
-    <CustomAceCodeEditor
-      :key="nodeElement.id"
-      @onCodeInput="onCodeInput"
-      :codeValue="nodeElement.value"
-      id="getthedata"
-      class="code-editor"
-    />
-  </div>
 </div>
-  </div>
+</div>
+</div>
+
 </template>
 
 <script>
@@ -70,6 +72,7 @@ export default {
     alert(){
      
       this.isSplitView = !this.isSplitView;
+      console.log(this.isSplitView)
     },
     getcode(){
       this.isCodeView = false;
@@ -95,6 +98,7 @@ export default {
   padding: 16px;
   border-radius: 6px;
   border-width: thin;
+  height:280px
 }
 .codelos-html-wrapper ::v-deep .html-element-menu-dropdown {
   
@@ -210,3 +214,4 @@ export default {
   background-color: antiquewhite;
 }
 </style>
+
