@@ -303,7 +303,8 @@
                 node.type !== supportedNodes.CODE.type &&
                 node.type !== supportedNodes.IMAGE_UPLOAD.type &&
                 node.type !== supportedNodes.VIDEO.type &&
-                node.type !== supportedNodes.FILE.type
+                node.type !== supportedNodes.FILE.type &&
+                node.type !== supportedNodes.CUSTOMHTML.type
               "
             >
               <template
@@ -709,7 +710,15 @@
               <HTMLCodeElement :nodeElement="node" />
             </div>
             <!-- html element end -->
-
+            <!-- custom widget element start -->
+            <div
+            v-if="node.type === supportedNodes.CUSTOMHTML.type"
+            :key="` custom_html_element_${node.id}`"
+            :id="`${nodeIndex}_${node.id}`"
+          >
+            <CustomWidgetElement :nodeElement="node" />
+          </div>
+          <!-- custom widget element end -->
             <!-- code element start -->
             <div
               v-if="node.type === supportedNodes.CODE.type"
@@ -809,6 +818,7 @@ import VideoElement from '@/components/elements/video-element/VideoElement.vue';
 import FileElement from '@/components/elements/file-element/FileElement.vue';
 
 import CommonDropdown from '@/components/common/CommonDropdown.vue';
+import CustomWidgetElement from '@/components/elements/custom-html-element/CustomWidgetElement.vue'
 
 export default {
   name: 'RecursiveElementNodes',
@@ -1159,6 +1169,21 @@ export default {
             return tmp;
           },
         },
+        CUSTOMHTML: {
+          type: 'custom-html',
+          indentifier: null,
+          initialObj: {
+            id: uuidv4(),
+            type: 'custom-html',
+            value: "",
+            class: 'codelos-custom-html-block',
+          },
+          getInitialObj(id = null) {
+            const tmp = JSON.parse(JSON.stringify(this.initialObj));
+            id ? (tmp.id = id) : (tmp.id = uuidv4());
+            return tmp;
+          },
+        },
         CODE: {
           type: 'code',
           indentifier: null,
@@ -1229,6 +1254,8 @@ export default {
         { name: 'Code', type: 'code' },
         { name: 'Bild', type: 'image-upload' },
         { name: 'Video', type: 'video' },
+        { name: 'CustomWidget', type: 'custom-html' },
+       
       ],
       alignmentSupportedOptions: [
         {
@@ -1328,6 +1355,7 @@ export default {
         this.supportedNodes.IFRAME.type,
         this.supportedNodes.IMAGE_UPLOAD.type,
         this.supportedNodes.VIDEO.type,
+        this.supportedNodes.CUSTOMHTML.type
       ];
     },
 
@@ -1804,6 +1832,7 @@ export default {
             document.getElementById(eventTargetId).classList.add('backspaced');
 
       if (elementType === this.supportedNodes.HTML.type) return;
+      if(elementType === this.supportedNodes.CUSTOMHTML.type) return;
 
       if (
         [
@@ -2056,6 +2085,14 @@ export default {
           oldId
             ? this.supportedNodes.HTML.getInitialObj(oldId)
             : this.supportedNodes.HTML.getInitialObj()
+        );
+        return tmpObjHolder;
+      }
+      if (elementType === this.supportedNodes.CUSTOMHTML.type) {
+        const tmpObjHolder = this.clone(
+          oldId
+            ? this.supportedNodes.CUSTOMHTML.getInitialObj(oldId)
+            : this.supportedNodes.CUSTOMHTML.getInitialObj()
         );
         return tmpObjHolder;
       }
@@ -3222,6 +3259,7 @@ export default {
     FileElement,
     VideoElement,
     CommonDropdown,
+    CustomWidgetElement
   },
 };
 </script>
