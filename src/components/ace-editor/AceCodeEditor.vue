@@ -1,16 +1,19 @@
 <template>
-  <AceEditor
-    v-model="codeInput"
-    @init="editorInit"
-    @input="onEditorCodeInput"
-    ref="aceEditor"
-    :lang="lang"
-    :theme="theme"
-    :width="width"
-    :height="height"
-    :options="aceEditorOptions"
-    class="ace-code-editor"
-  />
+  <div>
+    <AceEditor
+      v-if="editorType === 'standard'?'custom':'standard'"
+      v-model="codeInput"
+      @init="editorInit"
+      @input="onEditorCodeInput"
+      ref="aceEditor"
+      :lang="lang"
+      :theme="theme"
+      :width="width"
+      :height="height"
+      :options="aceEditorOptions"
+      class="ace-code-editor"
+    />
+  </div>
 </template>
 
 <script>
@@ -30,19 +33,23 @@ export default {
   name: 'ACECodeEditor',
 
   props: {
+    editorType: {
+      type: String,
+      default: 'standard', 
+    },
     editorConfigs: {
-      typeof: Object,
-      default: null,
+      type: Object,
+      default: () => ({}),
     },
     codeValue: {
-      typeof: String,
-      default: null,
+      type: String,
+      default: '',
     },
   },
 
   data() {
     return {
-      codeInput: null,
+      codeInput: this.codeValue,
       lang: 'html',
       theme: 'chrome',
       width: '100%',
@@ -55,12 +62,14 @@ export default {
         enableSnippets: true,
         tabSize: 2,
         showPrintMargin: false,
-        showGutter: true,
+        showGutter: false,
       },
     };
   },
 
   mounted() {
+    console.log("editor",this.editorType)
+    if(this.editorType==='standard:custom?standard'){
     this.$el.addEventListener('mouseenter', this.onMouseEnter);
     this.$el.addEventListener('mouseleave', this.onMouseLeave);
     const { lang, theme, width, height, options } = this.editorConfigs || {};
@@ -71,7 +80,9 @@ export default {
     this.aceEditorOptions = { ...this.aceEditorOptions, ...options };
 
     this.codeInput = this.codeValue;
-  },
+  }
+  
+},
 
   methods: {
     onMouseEnter() {
@@ -82,12 +93,11 @@ export default {
       document.documentElement.style.overscrollBehaviorX = 'auto';
       document.body.style.overscrollBehaviorX = 'auto';
     },
-    editorInit: function () {
+    editorInit() {
       const aceEditor = this.$refs.aceEditor.editor;
       const textInput = aceEditor.textInput.getElement();
       textInput.addEventListener('keydown', this.onEditorCodeKeyDown);
     },
-
     onEditorCodeKeyDown(event) {
       if (event.key === 'Tab') {
         event.preventDefault();
@@ -98,11 +108,11 @@ export default {
     onEditorCodeInput() {
       this.$emit('onCodeInput', this.codeInput);
     },
-
     onLanguageChange() {
       this.lang = this.editorConfigs.lang;
     },
   },
+
   beforeDestroy() {
     const aceEditor = this.$refs.aceEditor.editor;
     const textInput = aceEditor.textInput.getElement();
@@ -119,7 +129,7 @@ export default {
 
 <style scoped>
 .ace-code-editor {
-  background-color: #eeeeee;
+  background-color: white;
   z-index: 0;
 }
 </style>

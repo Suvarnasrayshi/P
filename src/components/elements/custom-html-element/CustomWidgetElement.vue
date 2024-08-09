@@ -36,35 +36,58 @@
           <div v-html="nodeElement.value"></div>
         </div>
         <div v-if="viewMode === 'split'">
-          <div class="icons-overlay-right">
+          <div class="icons-overlay-right" @click="gotoOutput">
             <img src="../../../assets/right.svg" alt="Right">
           </div>
 
-          <div class="icons-overlay">
+          <div class="icons-overlay" @click="gotoCodeSide">
             <img src="../../../assets/cross.svg" alt="Wrong">
           </div>
           <div class="selected-content">
             💡Selektiere ein Element um es individueller gestallten zu können 
             <div v-for="(selection, index) in selections" :key="selection.id" class="selection-item">
-              <div v-html="selection.text"></div>
+              <!-- <div v-html="selection.text" contentEditable=true></div> -->
+              <input 
+              v-model="selection.text" 
+              @input="updateSelectedText(index)" 
+              class="editable-text" 
+            />
               <select v-model="selection.dropdownValue" class="dropdown-select">
                 <option value="text">Text</option>
                 <option value="number">Zahl</option>
                 
               </select>
-              {{ selection.isDust }}
+              <!-- {{ selection.isDust }} -->
+              <!-- <img 
+              :src="!selection.isDust ? dustIcon : rightIcon"
+              class="rounded mx-auto d-block" alt="..." @click="toggleIcon(index)"> -->
+              <!-- <img 
+                v-if="selection.isDust" 
+                src="../../../assets/dust.svg" class="rounded mx-auto d-block" alt="..." @click="removeSelection(index)"
+              > -->
               <img 
               :src="selection.isDust ? dustIcon : rightIcon"
-              class="rounded mx-auto d-block" alt="..." @click="toggleIcon(index)"
-            >
-            <img 
-              v-if="selection.isDust" 
-              src="../../../assets/dust.svg" class="rounded mx-auto d-block" alt="..." @click="removeSelection(index)"
-            >
+              class="rounded mx-auto d-block" @click="selection.isDust ? removeSelection(index) : toggleIcon(index)"
+              alt="...">
+          
           </div>
         </div>
       </div>
     </div>
+  </div>
+  <div classs="codeoutput">
+    <div class="html-element-menu-dropdown">
+
+      <div class="space-in-between"></div>
+      
+      <div class="icon-circle-code" @click="toggleSplit" v-if="viewMode === 'codeoutput'">
+        <img src="../../../assets/edit.svg" class="rounded mx-auto d-block" alt="...">
+      </div>
+      <!-- <div :class="{'icon-circle-wand':true, 'split-right': viewMode === 'split'}" @click="alert"></div> -->
+      <div class="icon-circle-code" @click="toggleViewOutput" v-if="viewMode === 'codeoutput'">
+        <img src="../../../assets/setting.svg" class="rounded mx-auto d-block" alt="...">
+      </div>
+   </div>
   </div>
 </div>
 </template>
@@ -78,7 +101,7 @@ export default {
   props: {
     nodeElement: {
       type: Object,
-      default: () => ({}),
+      default:null
     },
   },
   data() {
@@ -106,15 +129,25 @@ export default {
       this.viewMode = this.viewMode === 'code' ? 'output' : 'code';
     },
     onMouseUp() {
-      const selection = window.getSelection().toString();
-      console.log(selection);
-      if (selection) {
-        this.addSelection(selection);
+      // const selection = window.getSelection().toString();
+      // console.log(selection);
+      // if (selection) {
+      //   this.addSelection(selection);
+      // }
+      const selection = window.getSelection();
+      const text = selection.toString();
+      if (text) {
+        const start = selection.anchorOffset;
+        console.log("start",start)
+        const end = selection.focusOffset;
+        console.log("end",end)
+
+        this.addSelection(text, start, end);
       }
     },
-    addSelection(text) {
+    addSelection(text,start,end) {
         console.log("textdoc", text);
-        this.selections.push({ text, dropdownValue: 'text', isDust: false });
+        this.selections.push({ text, start, end,dropdownValue: 'text', isDust: false });
       },
       toggleIcon(index) {
         console.log('idnfdhf',index)
@@ -123,6 +156,25 @@ export default {
       removeSelection(index) {
         console.log("sfbksdfdf",index)
         this.selections.splice(index, 1);
+      },
+      gotoCodeSide(){
+        this.viewMode='code'
+      },
+      gotoOutput(){
+        this.viewMode = this.viewMode ==='codeoutput'?'split':'codeoutput'
+      },
+      toggleSplit(){
+        console.log("toggle",this.viewMode);
+        this.viewMode = this.viewMode === 'split'
+        console.log("toggle1",this.viewMode);
+      },
+      updateSelectedText(index){
+        const selection = this.selections[index];
+        console.log("selection",selection);
+        this.nodeElement.value = this.nodeElement.value.slice(0, selection.start) + selection.text + this.nodeElement.value.slice(selection.end);
+        console.log("this.nodeElement",this.nodeElement.value)
+      selection.end = selection.start + selection.text.length;
+      console.log("selection.end", selection.end)
       },
   },
   components: {
@@ -223,7 +275,7 @@ right:20px;
 }
 .icon-circle-wand{
  flex-direction: row;
- padding: 10px;
+ padding: 5px;
  border-radius: 50%;
 }
 .icon-circle-code{
@@ -269,8 +321,8 @@ padding: 20px;
 }
 .split-right {
   position: absolute;
-  right: 881px;
-  top: -5px;
+  right: 675px;
+  top: 0px;
 }
 .selected-content {
   display: flex;
@@ -286,10 +338,7 @@ padding: 20px;
 .selection-item {
   display: flex;
   align-items: center;
-
-
 }
-
 .selection-item > div {
   margin-right: 400px;
 }
