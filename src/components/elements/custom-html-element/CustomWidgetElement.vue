@@ -19,6 +19,7 @@
    </div>
 
 
+
    <div class="editor-container">
      <div :class="{ 'split-view': viewMode === 'split'}">
 
@@ -44,29 +45,34 @@
           </div>
           <div class="selected-content">
             💡Selektiere ein Element um es individueller gestallten zu können 
-            <div v-for="(selection) in selections" :key="selection.id" class="selection-item">
+            <div v-for="(selection, index) in selections" :key="selection.id" class="selection-item">
               <div v-html="selection.text"></div>
               <select v-model="selection.dropdownValue" class="dropdown-select">
                 <option value="text">Text</option>
                 <option value="number">Zahl</option>
                 
               </select>
-                          
-                 <img src="../../../assets/right.svg" class="rounded mx-auto d-block" alt="...">
-                <img src="../../../assets/dust.svg" class="rounded mx-auto d-block" alt="...">
-              
-            </div>
+              {{ selection.isDust }}
+              <img 
+              :src="selection.isDust ? dustIcon : rightIcon"
+              class="rounded mx-auto d-block" alt="..." @click="toggleIcon(index)"
+            >
+            <img 
+              v-if="selection.isDust" 
+              src="../../../assets/dust.svg" class="rounded mx-auto d-block" alt="..." @click="removeSelection(index)"
+            >
           </div>
         </div>
       </div>
     </div>
   </div>
-
+</div>
 </template>
 
 <script>
 import CustomAceCodeEditor from '@/components/ace-editor/CustomAceCodeEditor.vue';
-
+import rightIcon from '../../../assets/right.svg';
+ import dustIcon from '../../../assets/dust.svg';
 export default {
   name: 'CustomHtmlCodeElement',
   props: {
@@ -79,6 +85,8 @@ export default {
     return {
      viewMode:'output',
      selections: [],
+     rightIcon,
+    dustIcon,
     };
   },
   methods: {
@@ -93,7 +101,6 @@ export default {
      console.log("Eye",this.viewMode)
      this.viewMode=this.viewMode === 'output'?'code':'output'
     },
-    
     toggleViewOutput(){
       console.log("CODE",this.viewMode)
       this.viewMode = this.viewMode === 'code' ? 'output' : 'code';
@@ -106,9 +113,17 @@ export default {
       }
     },
     addSelection(text) {
-      console.log("textdoc",text)
-      this.selections.push({ text, dropdownValue: 'text' });
-    },
+        console.log("textdoc", text);
+        this.selections.push({ text, dropdownValue: 'text', isDust: false });
+      },
+      toggleIcon(index) {
+        console.log('idnfdhf',index)
+        this.selections[index].isDust = !this.selections[index].isDust;
+      },
+      removeSelection(index) {
+        console.log("sfbksdfdf",index)
+        this.selections.splice(index, 1);
+      },
   },
   components: {
    CustomAceCodeEditor,
