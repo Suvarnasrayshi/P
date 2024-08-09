@@ -1,42 +1,51 @@
+
 <template>
-  <div
-    class="codelos-html-wrapper"
-  >
- 
-  <div class="html-element-menu-dropdown">
-    <div class="icon-circle-wand" @click="alert">
+  <div class="codelos-html-wrapper">
+
+    <div class="html-element-menu-dropdown">
+
+      <div class="space-in-between"></div>
       
-      <img src="../../../assets/magic.png" class="rounded mx-auto d-block" alt="...">
-    </div>
-    <div class="space-in-between">
+      <div class="icon-circle-code" @click="toggleView" v-if="viewMode === 'code'">
+        <img src="../../../assets/eye.png" class="rounded mx-auto d-block" alt="...">
+      </div>
       
+      <div class="icon-circle-code" @click="toggleViewOutput" v-if="viewMode === 'output'">
+        <img src="../../../assets/code.png" class="rounded mx-auto d-block" alt="...">
+      </div>
+      <div class="icon-circle-wand" @click="alert">
+        <img src="../../../assets/magic.png" class="rounded mx-auto d-block" alt="...">
+      </div>
+   </div>
+
+
+   <div class="editor-container">
+     <div :class="{ 'split-view': viewMode === 'split'}">
+
+   <div v-if="viewMode === 'output'" class="code-editor">
+     <CustomAceCodeEditor
+     :key="nodeElement.id"
+     @onCodeInput="onCodeInput"
+     :codeValue="nodeElement.value"
+     id="getthedata"
+     class="code-editor"
+     />
     </div>
-    <!-- if slitscreen is there then this eye should not show -->
-    <div class="icon-circle-code" @click="getcode" v-if="isCodeView">
-      <img src="../../../assets/eye.png" class="rounded mx-auto d-block" alt="...">
-    </div>
-    
-    <div class="icon-circle-code" @click="showCode" v-if="!isCodeView">
-      <img src="../../../assets/code.png" class="rounded mx-auto d-block" alt="...">
+        <div v-if="viewMode !== 'output'" class="code-editor">
+          <div v-html="nodeElement.value"></div>
+        </div>
+        <div v-if="viewMode === 'split'" class="icons-overlay">
+          <div class="icon-right">
+            <img src="../../../assets/right.svg" alt="Right">
+          </div>
+          <div class="space-in-between-split"></div>
+          <div class="icon-wrong">
+            <img src="../../../assets/cross.svg" alt="Wrong">
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="editor-container">
-    <div :class=" { 'split-view': isSplitView }">
-<div v-if="!isCodeView">
-  <CustomAceCodeEditor
-  :key="nodeElement.id"
-  @onCodeInput="onCodeInput"
-  :codeValue="nodeElement.value"
-  id="getthedata"
-  class="code-editor"
-  />
-</div>
-<div v-else class="output-data">
-  <div v-html="nodeElement.value"></div>
-</div>
-</div>
-</div>
-</div>
 
 </template>
 
@@ -48,170 +57,175 @@ export default {
   props: {
     nodeElement: {
       type: Object,
-      default: () => {},
+      default: () => ({}),
     },
-  },
-  created() {
-    if (this.nodeElement && !this.nodeElement.settings) {
-      this.nodeElement.settings = {
-      };
-    }
   },
   data() {
     return {
-      isSplitView: false,
-      isCodeView: true,
+     viewMode:'code',
     };
   },
   methods: {
     onCodeInput(codeInput) {
-      // eslint-disable-next-line
       this.nodeElement.value = codeInput;
-      
     },
-    alert(){
-     
-      this.isSplitView = !this.isSplitView;
-      console.log(this.isSplitView)
+    alert() {  
+      console.log("MAGIC WAND",this.viewMode)
+      this.viewMode = this.viewMode === 'split'?'code':'split'
     },
-    getcode(){
-      this.isCodeView = false;
-      if (!this.isSplitView) {
-        this.isSplitView = true; 
-      }
+   toggleView() {
+     console.log("Eye",this.viewMode)
+     this.viewMode=this.viewMode === 'output'?'code':'output'
     },
-    showCode(){
-      this.isCodeView = true; 
+    
+    toggleViewOutput(){
+      console.log("CODE",this.viewMode)
+      this.viewMode = this.viewMode === 'code' ? 'output' : 'code';
     }
   },
-
   components: {
-    CustomAceCodeEditor,
+   CustomAceCodeEditor,
   },
 };
 </script>
 
 <style scoped>
 .codelos-html-wrapper {
- border-style: solid;
- border-color:#D1D1D1;
+  border-style: solid;
+  border-color: #D1D1D1;
   padding: 16px;
   border-radius: 6px;
   border-width: thin;
-  height:280px
+  height: 280px;
 }
 .codelos-html-wrapper ::v-deep .html-element-menu-dropdown {
-  
-  position: absolute;
- right:20px;
-  z-index: 2;
-  display: flex;
+
+ position: absolute;
+right:20px;
+ z-index: 2;
+ display: flex;
 }
 .codelos-html-wrapper ::v-deep .html-element-menu-dropdown .dropdown-menu {
-  width: 250px;
+ width: 250px;
 }
 
 .codelos-html-wrapper ::v-deep .html-element-menu-dropdown button {
-  background-color: transparent;
+ background-color: transparent;
 
-  border: none;
+ border: none;
 }
 
 .codelos-html-wrapper ::v-deep .html-element-menu-dropdown button:active,
 .codelos-html-wrapper
-  ::v-deep
-  .html-element-menu-dropdown
-  button:focus-visible {
-  background-color: transparent;
-  border: none;
-  color: black;
-  box-shadow: none !important;
+ ::v-deep
+ .html-element-menu-dropdown
+ button:focus-visible {
+ background-color: transparent;
+ border: none;
+ color: black;
+ box-shadow: none !important;
 }
 
 .codelos-html-wrapper .html-dropdown-menu-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-inline: 8px;
-  justify-content: space-between;
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ padding-inline: 8px;
+ justify-content: space-between;
 }
 
 .codelos-html-wrapper .view-in-pdf-input + .view-in-pdf-label {
-  display: block;
-  position: relative;
-  cursor: pointer;
-  outline: none;
-  user-select: none;
-  padding: 2px;
-  width: 40px;
-  height: 20px;
-  
-  border-radius: 40px;
+ display: block;
+ position: relative;
+ cursor: pointer;
+ outline: none;
+ user-select: none;
+ padding: 2px;
+ width: 40px;
+ height: 20px;
+ 
+ border-radius: 40px;
 }
 .codelos-html-wrapper .view-in-pdf-input + .view-in-pdf-label:before {
-  right: 1px;
- 
-  transition: background 0.4s;
+ right: 1px;
+
+ transition: background 0.4s;
 }
 .codelos-html-wrapper .view-in-pdf-input + .view-in-pdf-label:after {
-  width: 14px;
-  height: 14px;
-  margin: 2px;
-  
-  border-radius: 100%;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
-  transition: all 0.4s;
+ width: 14px;
+ height: 14px;
+ margin: 2px;
+ 
+ border-radius: 100%;
+ box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+ transition: all 0.4s;
 }
 .codelos-html-wrapper .view-in-pdf-input + .view-in-pdf-label:before,
 .codelos-html-wrapper .view-in-pdf-input + .view-in-pdf-label:after {
-  display: block;
-  position: absolute;
-  top: 1px;
-  left: 1px;
-  bottom: 1px;
-  content: '';
+ display: block;
+ position: absolute;
+ top: 1px;
+ left: 1px;
+ bottom: 1px;
+ content: '';
 }
 .codelos-html-wrapper .view-in-pdf-input:checked + .view-in-pdf-label:before {
-  background-color: #000000;
+ background-color: #000000;
 }
 .codelos-html-wrapper .view-in-pdf-input:checked + .view-in-pdf-label:after {
-  transform: translateX(20px);
+ transform: translateX(20px);
 }
 
 .codelos-html-wrapper .view-in-pdf-input {
-  position: absolute;
-  opacity: 0;
+ position: absolute;
+ opacity: 0;
 }
 .icon-circle-wand{
-  flex-direction: row;
-  padding: 10px;
-  border-radius: 50%;
+ flex-direction: row;
+ padding: 10px;
+ border-radius: 50%;
 }
 .icon-circle-code{
-  flex-direction: row;
- padding: 20px;
-  border-radius: 50%;
+ flex-direction: row;
+padding: 20px;
+ border-radius: 50%;
 }
 .space-in-between{
-  padding: 5px;
+ padding: 5px;
 }
 
-
+.space-in-between-split{
+  padding: 10px;
+ }
 .code-editor {
-  width:100% !important
+ width:100% !important
 }
 .split-view {
-  display: flex;
-  flex-direction: row;
+ display: flex;
+ flex-direction: row;
 }
 
 .editor-container {
-  display: flex;
-  flex-direction: column;
+ display: flex;
+ flex-direction: column;
 }
 .split-view .code-editor {
-  width: 50% !important;
-  background-color: antiquewhite;
+ width: 50% !important;
+ background-color: antiquewhite;
+ height:200px !important
+}
+
+.icons-overlay{
+  top: 10px;
+  display: flex;
+  flex-direction: row;
+  position: absolute;
+  right: 19px;
 }
 </style>
+
+
+
+
+
 
