@@ -13,7 +13,7 @@
       <div class="icon-circle-code" @click="toggleViewOutput" v-if="viewMode === 'output'">
         <img src="../../../assets/code.png" class="rounded mx-auto d-block" alt="...">
       </div>
-      <div class="icon-circle-wand" @click="alert">
+        <div :class="{'icon-circle-wand':true, 'split-right': viewMode === 'split'}" @click="alert">
         <img src="../../../assets/magic.png" class="rounded mx-auto d-block" alt="...">
       </div>
    </div>
@@ -31,16 +31,31 @@
      class="code-editor"
      />
     </div>
-        <div v-if="viewMode !== 'output'" class="code-editor">
+        <div v-if="viewMode !== 'output'" class="code-editor" @mouseup="onMouseUp">
           <div v-html="nodeElement.value"></div>
         </div>
-        <div v-if="viewMode === 'split'" class="icons-overlay">
-          <div class="icon-right">
+        <div v-if="viewMode === 'split'">
+          <div class="icons-overlay-right">
             <img src="../../../assets/right.svg" alt="Right">
           </div>
-          <div class="space-in-between-split"></div>
-          <div class="icon-wrong">
+
+          <div class="icons-overlay">
             <img src="../../../assets/cross.svg" alt="Wrong">
+          </div>
+          <div class="selected-content">
+            💡Selektiere ein Element um es individueller gestallten zu können 
+            <div v-for="(selection) in selections" :key="selection.id" class="selection-item">
+              <div v-html="selection.text"></div>
+              <select v-model="selection.dropdownValue" class="dropdown-select">
+                <option value="text">Text</option>
+                <option value="number">Zahl</option>
+                
+              </select>
+                          
+                 <img src="../../../assets/right.svg" class="rounded mx-auto d-block" alt="...">
+                <img src="../../../assets/dust.svg" class="rounded mx-auto d-block" alt="...">
+              
+            </div>
           </div>
         </div>
       </div>
@@ -62,7 +77,8 @@ export default {
   },
   data() {
     return {
-     viewMode:'code',
+     viewMode:'output',
+     selections: [],
     };
   },
   methods: {
@@ -81,7 +97,18 @@ export default {
     toggleViewOutput(){
       console.log("CODE",this.viewMode)
       this.viewMode = this.viewMode === 'code' ? 'output' : 'code';
-    }
+    },
+    onMouseUp() {
+      const selection = window.getSelection().toString();
+      console.log(selection);
+      if (selection) {
+        this.addSelection(selection);
+      }
+    },
+    addSelection(text) {
+      console.log("textdoc",text)
+      this.selections.push({ text, dropdownValue: 'text' });
+    },
   },
   components: {
    CustomAceCodeEditor,
@@ -96,7 +123,7 @@ export default {
   padding: 16px;
   border-radius: 6px;
   border-width: thin;
-  height: 280px;
+  height: 240px;
 }
 .codelos-html-wrapper ::v-deep .html-element-menu-dropdown {
 
@@ -148,7 +175,6 @@ right:20px;
 }
 .codelos-html-wrapper .view-in-pdf-input + .view-in-pdf-label:before {
  right: 1px;
-
  transition: background 0.4s;
 }
 .codelos-html-wrapper .view-in-pdf-input + .view-in-pdf-label:after {
@@ -193,10 +219,6 @@ padding: 20px;
 .space-in-between{
  padding: 5px;
 }
-
-.space-in-between-split{
-  padding: 10px;
- }
 .code-editor {
  width:100% !important
 }
@@ -216,16 +238,56 @@ padding: 20px;
 }
 
 .icons-overlay{
-  top: 10px;
+  top: 28px;
   display: flex;
   flex-direction: row;
   position: absolute;
   right: 19px;
 }
+
+.icons-overlay-right{
+  top: 28px;
+  display: flex;
+  flex-direction: row;
+  position: absolute;
+  right: 59px;
+}
+.split-right {
+  position: absolute;
+  right: 881px;
+  top: -5px;
+}
+.selected-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  margin-left: 40px;
+}
+.dropdown-select {
+  margin-left: 60px;
+  flex-direction: row;
+  margin-right:40px
+}
+.selection-item {
+  display: flex;
+  align-items: center;
+
+
+}
+
+.selection-item > div {
+  margin-right: 400px;
+}
+select {
+  background-color: transparent;
+  border: none;
+  padding: 0 1em 0 0;
+  margin: 0;
+  width: 10%;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: inherit;
+  line-height: inherit;
+}
+
 </style>
-
-
-
-
-
-
