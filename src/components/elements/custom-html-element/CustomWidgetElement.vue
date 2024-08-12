@@ -13,7 +13,7 @@
       <div class="icon-circle-code" @click="toggleViewOutput" v-if="viewMode === 'output'">
         <img src="../../../assets/code.png" class="rounded mx-auto d-block" alt="...">
       </div>
-        <div :class="{'icon-circle-wand':true, 'split-right': viewMode === 'split'}" @click="alert">
+        <div :class="{'icon-circle-wand':true, 'split-right': viewMode === 'split'}" @click="toggleSplitView">
         <img src="../../../assets/magic.png" class="rounded mx-auto d-block" alt="...">
       </div>
    </div>
@@ -46,30 +46,29 @@
           <div class="selected-content">
             💡Selektiere ein Element um es individueller gestallten zu können 
             <div v-for="(selection, index) in selections" :key="selection.id" class="selection-item">
-              <!-- <div v-html="selection.text" contentEditable=true></div> -->
               <input 
               v-model="selection.text" 
               @input="updateSelectedText(index)" 
               class="editable-text" 
+              :disabled="selection.confirmed" 
             />
               <select v-model="selection.dropdownValue" class="dropdown-select">
                 <option value="text">Text</option>
                 <option value="number">Zahl</option>
                 
               </select>
-              <!-- {{ selection.isDust }} -->
-              <!-- <img 
-              :src="!selection.isDust ? dustIcon : rightIcon"
-              class="rounded mx-auto d-block" alt="..." @click="toggleIcon(index)"> -->
-              <!-- <img 
-                v-if="selection.isDust" 
-                src="../../../assets/dust.svg" class="rounded mx-auto d-block" alt="..." @click="removeSelection(index)"
-              > -->
               <img 
-              :src="selection.isDust ? dustIcon : rightIcon"
-              class="rounded mx-auto d-block" @click="selection.isDust ? removeSelection(index) : toggleIcon(index)"
-              alt="...">
-          
+              src="../../../assets/right.svg" 
+              class="rounded mx-auto d-block" 
+              alt="Right" 
+              @click="confirmSelection(index)"
+            />
+            <img 
+              src="../../../assets/dust.svg" 
+              class="rounded mx-auto d-block" 
+              alt="Dustbin" 
+              @click="toggleRemove(index)"
+            />
           </div>
         </div>
       </div>
@@ -83,19 +82,30 @@
       <div class="icon-circle-code" @click="toggleSplit" v-if="viewMode === 'codeoutput'">
         <img src="../../../assets/edit.svg" class="rounded mx-auto d-block" alt="...">
       </div>
-      <!-- <div :class="{'icon-circle-wand':true, 'split-right': viewMode === 'split'}" @click="alert"></div> -->
-      <div class="icon-circle-code" @click="toggleViewOutput" v-if="viewMode === 'codeoutput'">
+      <div class="icon-circle-code" @click="toggleSettingsView" v-if="viewMode === 'codeoutput'">
         <img src="../../../assets/setting.svg" class="rounded mx-auto d-block" alt="...">
       </div>
    </div>
+   <div class="icon-cross" @click="toggleCodeOutputView" v-if="viewMode === 'code-split'">
+     <img src="../../../assets/cross.svg" class="rounded mx-auto d-block" alt="...">
+   </div>
+   <div class="code-split-right">
+   <div v-if="viewMode === 'code-split'" class="split-content">
+    <div class="split-part-left">
+      <div v-html="nodeElement.value"></div>
+    </div>
+    <div class="split-part-right">
+      <h5>Old Content</h5>
+      <div v-html="oldContent"></div>
+    </div>
+  </div>
+  </div>
   </div>
 </div>
 </template>
 
 <script>
 import CustomAceCodeEditor from '@/components/ace-editor/CustomAceCodeEditor.vue';
-import rightIcon from '../../../assets/right.svg';
- import dustIcon from '../../../assets/dust.svg';
 export default {
   name: 'CustomHtmlCodeElement',
   props: {
@@ -108,15 +118,16 @@ export default {
     return {
      viewMode:'output',
      selections: [],
-     rightIcon,
-    dustIcon,
     };
   },
   methods: {
     onCodeInput(codeInput) {
+      if (this.viewMode === 'code-split') {
+        this.oldContent = this.nodeElement.value;
+      }
       this.nodeElement.value = codeInput;
     },
-    alert() {  
+    toggleSplitView() {  
       console.log("MAGIC WAND",this.viewMode)
       this.viewMode = this.viewMode === 'split'?'code':'split'
     },
@@ -128,35 +139,57 @@ export default {
       console.log("CODE",this.viewMode)
       this.viewMode = this.viewMode === 'code' ? 'output' : 'code';
     },
-    onMouseUp() {
-      // const selection = window.getSelection().toString();
-      // console.log(selection);
-      // if (selection) {
-      //   this.addSelection(selection);
-      // }
-      const selection = window.getSelection();
-      const text = selection.toString();
-      if (text) {
-        const start = selection.anchorOffset;
-        console.log("start",start)
-        const end = selection.focusOffset;
-        console.log("end",end)
-
-        this.addSelection(text, start, end);
-      }
+    toggleSettingsView(){
+      this.oldContent = this.nodeElement.value;
+      this.viewMode='code-split'
+      console.log("this.oldContent",this.oldContent)
     },
-    addSelection(text,start,end) {
-        console.log("textdoc", text);
-        this.selections.push({ text, start, end,dropdownValue: 'text', isDust: false });
-      },
-      toggleIcon(index) {
-        console.log('idnfdhf',index)
-        this.selections[index].isDust = !this.selections[index].isDust;
-      },
-      removeSelection(index) {
-        console.log("sfbksdfdf",index)
-        this.selections.splice(index, 1);
-      },
+    onMouseUp() {
+    const selection = window.getSelection();
+    const text = selection.toString();
+    if (text) {
+      const anchorNode = selection.anchorNode;
+      const parentElement = anchorNode.parentElement;
+
+      if (parentElement && parentElement.outerHTML) {
+        const start = selection.anchorOffset;
+        const end = selection.focusOffset;
+        const uniqueId = `selected-${Date.now()}`;
+        console.log(uniqueId)
+        const wrappedText = `<span id="${uniqueId}">${text}</span>`;
+        console.log("wrappedText",wrappedText)
+        parentElement.innerHTML = parentElement.innerHTML.replace(text, wrappedText);
+        this.addSelection(text, start, end, parentElement.outerHTML, uniqueId, parentElement);
+      }
+    }
+  },
+
+  addSelection(text, start, end, originalHTML, uniqueId, parentElement) {
+    this.selections.push({ 
+      text, 
+      start, 
+      end, 
+      uniqueId, 
+      dropdownValue: '',  
+      originalHTML, 
+      parentElement
+    });
+  },
+  updateSelectedText(index) {
+    const selection = this.selections[index];
+    const spanElement = document.getElementById(selection.uniqueId);
+
+    if (spanElement) {
+      spanElement.textContent = selection.text;
+      const updatedHTML = spanElement.parentElement.outerHTML;
+      this.nodeElement.value = this.nodeElement.value.replace(selection.originalHTML, updatedHTML);
+      console.log("originaldata",selection.originalHTML)
+      console.log("UPDATEhtml",updatedHTML)
+      selection.originalHTML = updatedHTML;
+      console.log("this.nodeElement.value",this.nodeElement.value)
+       this.nodeElement.value=selection.originalHTML
+    }
+  },
       gotoCodeSide(){
         this.viewMode='code'
       },
@@ -164,18 +197,26 @@ export default {
         this.viewMode = this.viewMode ==='codeoutput'?'split':'codeoutput'
       },
       toggleSplit(){
-        console.log("toggle",this.viewMode);
-        this.viewMode = this.viewMode === 'split'
-        console.log("toggle1",this.viewMode);
+        console.log("toggle", this.viewMode);
+        this.viewMode = this.viewMode === 'codeoutput' ? 'split' : 'codeoutput';
+        console.log("toggle1", this.viewMode);  
       },
-      updateSelectedText(index){
-        const selection = this.selections[index];
-        console.log("selection",selection);
-        this.nodeElement.value = this.nodeElement.value.slice(0, selection.start) + selection.text + this.nodeElement.value.slice(selection.end);
-        console.log("this.nodeElement",this.nodeElement.value)
-      selection.end = selection.start + selection.text.length;
-      console.log("selection.end", selection.end)
-      },
+    toggleRemove(index) {
+        this.selections.splice(index, 1);
+    },
+
+    confirmSelection(index) {
+      const selection = this.selections[index];
+      console.log("selectionData",selection);
+      selection.confirmed = true; 
+      console.log("sdfkdsgfgsdfgdgf",selection.confirmed)
+    },
+    toggleCodeOutputView(){
+      this.viewMode = this.viewMode === 'code-split' ? 'codeoutput' : 'code-split';
+    },
+    toogleSplitDataView(){
+      this.codeView=""
+    }
   },
   components: {
    CustomAceCodeEditor,
@@ -300,7 +341,7 @@ padding: 20px;
 }
 .split-view .code-editor {
  width: 50% !important;
- background-color: antiquewhite;
+ background-color: rgb(242, 192, 127);
  height:200px !important
 }
 
@@ -354,4 +395,17 @@ select {
   line-height: inherit;
 }
 
+input{
+  border:none
+}
+.icon-cross{
+  padding-left: 1300px;
+  padding-top: 30px;
+}
+.code-split-right{
+  padding-left: 1000px;
+  padding-top: 30px;
+  display:flex;
+  flex-direction:row
+}
 </style>
