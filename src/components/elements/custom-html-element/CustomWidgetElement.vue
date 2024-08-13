@@ -44,7 +44,7 @@
     <div class="editor-container">
       <div :class="{ 'split-view': viewMode === 'split' }">
         <div v-if="viewMode === 'output'" class="code-editor">
-          <CustomAceCodeEditor
+          <AceCodeEditor
             :key="nodeElement.id"
             @onCodeInput="onCodeInput"
             :codeValue="nodeElement.value"
@@ -96,6 +96,7 @@
                 alt="Dustbin"
                 @click="toggleRemove(index)"
               />
+             
             </div>
           </div>
         </div>
@@ -142,13 +143,13 @@
         <div class="code-split-right">
           <div class="right-side"></div>
           <div class="new-content">
-            <div v-for="(content, index) in newContent" :key="'new-' + index">
+            <div v-for="(content, index) in newContent" :key="index">
               <div>{{ content }}</div>
             </div>
           </div>
+          <div class="space-in-between-data"></div>
           <div class="old-content">
-            <div v-for="(content, index) in oldContent" :key="'old-' + index">
-              <!-- <div>{{ content }}</div> -->
+            <div v-for="(content, index) in oldContent" :key="index">
               <input
                 v-model="content.text"
                 @input="updateOutputData(index)"
@@ -163,7 +164,8 @@
 </template>
 
 <script>
-import CustomAceCodeEditor from '@/components/ace-editor/CustomAceCodeEditor.vue';
+import AceCodeEditor from '@/components/ace-editor/AceCodeEditor.vue';
+
 export default {
   name: 'CustomHtmlCodeElement',
   props: {
@@ -185,15 +187,12 @@ export default {
       this.nodeElement.value = codeInput;
     },
     toggleSplitView() {
-      console.log('MAGIC WAND', this.viewMode);
       this.viewMode = this.viewMode === 'split' ? 'code' : 'split';
     },
     toggleView() {
-      console.log('Eye', this.viewMode);
       this.viewMode = this.viewMode === 'output' ? 'code' : 'output';
     },
     toggleViewOutput() {
-      console.log('CODE', this.viewMode);
       this.viewMode = this.viewMode === 'code' ? 'output' : 'code';
     },
     toggleSettingsView() {
@@ -211,8 +210,9 @@ export default {
             `<span id="${uniqueId}">${text}</span>`
           );
           this.addSelection(text, uniqueId);
-          this.oldContent.push({ text });
+          this.oldContent.push({ text, uniqueId });
           console.log('oldContent', this.oldContent);
+
         }
       }
     },
@@ -224,22 +224,31 @@ export default {
         confirmed: false,
       });
     },
+
     updateSelectedText(index) {
       const selection = this.selections[index];
-      console.log("selection.text",selection.text)
+      console.log('selection.text', selection.text);
       const spanElement = document.getElementById(selection.uniqueId);
-      console.log("spanElement",spanElement)
+      console.log('spanElement', spanElement);
       if (spanElement) {
         this.newContent[index] = selection.text;
       }
     },
+
     updateOutputData(index) {
-      console.log('indexdataof output', index);
-     const selectedData = this.oldContent[index];
-      console.log("this.nodeElement.value",this.nodeElement.value)
-      console.log("selected",selectedData)
-      this.nodeElement.value=selectedData
+      const selectedData = this.oldContent[index];
+      const uniqueId = this.selections[index].uniqueId;
+      const spanElement = document.getElementById(uniqueId);
+      console.log('Span Element:', spanElement);
+      if (spanElement) {
+        spanElement.textContent = selectedData.text;
+        console.log('spanElement.textContent', spanElement.textContent);
+      }
+      console.log('nodeElemnt', this.nodeElement.value);
+      console.log("dataElement:",spanElement.textContent)
+
     },
+
     gotoCodeSide() {
       this.viewMode = 'code';
     },
@@ -268,7 +277,7 @@ export default {
     },
   },
   components: {
-    CustomAceCodeEditor,
+    AceCodeEditor,
   },
 };
 </script>
@@ -489,5 +498,11 @@ input {
   flex: 1;
   margin: 5px;
   padding: 10px;
+}
+select {
+  width: 70px;
+}
+.space-in-between-data {
+  padding: 40px;
 }
 </style>
