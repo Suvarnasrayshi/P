@@ -3,8 +3,16 @@
     <div class="html-element-menu-dropdown">
       <div class="space-in-between"></div>
 
-      <div class="icon-circle-code" @click="toggleView" v-if="viewMode === 'code'">
-        <img src="../../../assets/eye.png" class="rounded mx-auto d-block" alt="..." />
+      <div
+        class="icon-circle-code"
+        @click="toggleView"
+        v-if="viewMode === 'code'"
+      >
+        <img
+          src="../../../assets/eye.png"
+          class="rounded mx-auto d-block"
+          alt="..."
+        />
       </div>
 
       <div
@@ -12,13 +20,24 @@
         @click="toggleViewOutput"
         v-if="viewMode === 'output'"
       >
-        <img src="../../../assets/code.png" class="rounded mx-auto d-block" alt="..." />
+        <img
+          src="../../../assets/code.png"
+          class="rounded mx-auto d-block"
+          alt="..."
+        />
       </div>
       <div
-        :class="{ 'icon-circle-wand': true, 'split-right': viewMode === 'split' }"
+        :class="{
+          'icon-circle-wand': true,
+          'split-right': viewMode === 'split',
+        }"
         @click="toggleSplitView"
       >
-        <img src="../../../assets/magic.png" class="rounded mx-auto d-block" alt="..." />
+        <img
+          src="../../../assets/magic.png"
+          class="rounded mx-auto d-block"
+          alt="..."
+        />
       </div>
     </div>
 
@@ -33,9 +52,12 @@
             class="code-editor"
           />
         </div>
-        <div v-if="viewMode !== 'output'" class="code-editor" @mouseup="onMouseUp">
+        <div
+          v-if="viewMode !== 'output'"
+          class="code-editor"
+          @mouseup="onMouseUp"
+        >
           <div v-html="nodeElement.value"></div>
-        
         </div>
         <div v-if="viewMode === 'split'">
           <div class="icons-overlay-right" @click="gotoOutput">
@@ -82,35 +104,34 @@
     <div classs="codeoutput">
       <div class="html-element-menu-dropdown">
         <div
-        class="icon-circle-code"
-        @click="toggleSplit"
-        v-if="viewMode === 'codeoutput'"
+          class="icon-circle-code"
+          @click="toggleSplit"
+          v-if="viewMode === 'codeoutput'"
         >
-        <img
-        src="../../../assets/edit.svg"
-        class="rounded mx-auto d-block"
-        alt="..."
-        />
+          <img
+            src="../../../assets/edit.svg"
+            class="rounded mx-auto d-block"
+            alt="..."
+          />
+        </div>
+        <div
+          class="icon-circle-code"
+          @click="toggleSettingsView"
+          v-if="viewMode === 'codeoutput'"
+        >
+          <img
+            src="../../../assets/setting.svg"
+            class="rounded mx-auto d-block"
+            alt="..."
+          />
+        </div>
       </div>
-      <div
-      class="icon-circle-code"
-      @click="toggleSettingsView"
-      v-if="viewMode === 'codeoutput'"
-      >
-      <img
-      src="../../../assets/setting.svg"
-      class="rounded mx-auto d-block"
-      alt="..."
-      />
-    </div>
-  </div>
-  <div v-if="viewMode === 'code-split'" class="split-screen"></div>
-  <div v-if="viewMode === 'code-split'" class="right-side-data">
+      <div v-if="viewMode === 'code-split'" class="split-screen"></div>
+      <div v-if="viewMode === 'code-split'" class="right-side-data">
         <div
           class="icon-cross"
           @click="toggleCodeOutputView"
           v-if="viewMode === 'code-split'"
-          
         >
           <img
             src="../../../assets/cross.svg"
@@ -119,36 +140,32 @@
           />
         </div>
         <div class="code-split-right">
-          <div class="right-side">
-            <!-- <div class="new-content"> -->
-              <!-- <div v-html="nodeElement.value"></div> -->
-             
-              <!-- <input
-              v-model="newContent"
-              class="editable-text"
-            />-->
-            </div> 
-            <div class="new-content">
-              <div v-for="(content, index) in newContent" :key="'new-' + index">
-                <div>{{ index + 1 }}: {{ content }}</div>
-              </div>
-            <div class="old-content">
-              <div v-for="(content, index) in oldContent" :key="'old-' + index">
-                <div>{{ index + 1 }}: {{ content }}</div>
-              </div>
+          <div class="right-side"></div>
+          <div class="new-content">
+            <div v-for="(content, index) in newContent" :key="'new-' + index">
+              <div>{{ content }}</div>
             </div>
           </div>
+          <div class="old-content">
+            <div v-for="(content, index) in oldContent" :key="'old-' + index">
+              <!-- <div>{{ content }}</div> -->
+              <input
+                v-model="content.text"
+                @input="updateOutputData(index)"
+                class="editable-text"
+              />
+            </div>
           </div>
         </div>
       </div>
     </div>
-  
+  </div>
 </template>
 
 <script>
-import CustomAceCodeEditor from "@/components/ace-editor/CustomAceCodeEditor.vue";
+import CustomAceCodeEditor from '@/components/ace-editor/CustomAceCodeEditor.vue';
 export default {
-  name: "CustomHtmlCodeElement",
+  name: 'CustomHtmlCodeElement',
   props: {
     nodeElement: {
       type: Object,
@@ -157,10 +174,10 @@ export default {
   },
   data() {
     return {
-      viewMode: "output",
+      viewMode: 'output',
       selections: [],
-      newContent:[],
-      oldContent:[]
+      newContent: [],
+      oldContent: [],
     };
   },
   methods: {
@@ -168,26 +185,24 @@ export default {
       this.nodeElement.value = codeInput;
     },
     toggleSplitView() {
-      console.log("MAGIC WAND", this.viewMode);
-      this.viewMode = this.viewMode === "split" ? "code" : "split";
+      console.log('MAGIC WAND', this.viewMode);
+      this.viewMode = this.viewMode === 'split' ? 'code' : 'split';
     },
     toggleView() {
-      console.log("Eye", this.viewMode);
-      this.viewMode = this.viewMode === "output" ? "code" : "output";
+      console.log('Eye', this.viewMode);
+      this.viewMode = this.viewMode === 'output' ? 'code' : 'output';
     },
     toggleViewOutput() {
-      console.log("CODE", this.viewMode);
-      this.viewMode = this.viewMode === "code" ? "output" : "code";
+      console.log('CODE', this.viewMode);
+      this.viewMode = this.viewMode === 'code' ? 'output' : 'code';
     },
     toggleSettingsView() {
-      this.viewMode = "code-split";
-      
+      this.viewMode = 'code-split';
     },
     onMouseUp() {
       const selection = window.getSelection();
       const text = selection.toString();
       if (text) {
-        
         const parentElement = selection.anchorNode.parentElement;
         if (parentElement) {
           const uniqueId = `selected-${Date.now()}`;
@@ -196,8 +211,8 @@ export default {
             `<span id="${uniqueId}">${text}</span>`
           );
           this.addSelection(text, uniqueId);
-          this.oldContent.push({text})
-          console.log("oldContent",this.oldContent)
+          this.oldContent.push({ text });
+          console.log('oldContent', this.oldContent);
         }
       }
     },
@@ -205,29 +220,36 @@ export default {
       this.selections.push({
         text,
         uniqueId,
-        dropdownValue: "",
+        dropdownValue: '',
         confirmed: false,
       });
     },
     updateSelectedText(index) {
       const selection = this.selections[index];
+      console.log("selection.text",selection.text)
       const spanElement = document.getElementById(selection.uniqueId);
+      console.log("spanElement",spanElement)
       if (spanElement) {
-        spanElement.textContent = selection.text;
-        selection.originalHTML = spanElement.parentElement.innerHTML;
-        this.newContent[index] = spanElement.textContent;
+        this.newContent[index] = selection.text;
       }
     },
+    updateOutputData(index) {
+      console.log('indexdataof output', index);
+     const selectedData = this.oldContent[index];
+      console.log("this.nodeElement.value",this.nodeElement.value)
+      console.log("selected",selectedData)
+      this.nodeElement.value=selectedData
+    },
     gotoCodeSide() {
-      this.viewMode = "code";
+      this.viewMode = 'code';
     },
     gotoOutput() {
-      this.viewMode = this.viewMode === "codeoutput" ? "split" : "codeoutput";
+      this.viewMode = this.viewMode === 'codeoutput' ? 'split' : 'codeoutput';
     },
     toggleSplit() {
-      console.log("toggle", this.viewMode);
-      this.viewMode = this.viewMode === "codeoutput" ? "split" : "codeoutput";
-      console.log("toggle1", this.viewMode);
+      console.log('toggle', this.viewMode);
+      this.viewMode = this.viewMode === 'codeoutput' ? 'split' : 'codeoutput';
+      console.log('toggle1', this.viewMode);
     },
     toggleRemove(index) {
       this.selections.splice(index, 1);
@@ -235,13 +257,14 @@ export default {
 
     confirmSelection(index) {
       const selection = this.selections[index];
-      console.log("selectionData", selection.text);
+      console.log('selectionData', selection.text);
       selection.confirmed = true;
       this.newContent[index] = this.selections[index].text;
-      console.log("sdfkdsgfgsdfgdgf", selection.confirmed);
+      console.log('sdfkdsgfgsdfgdgf', selection.confirmed);
     },
     toggleCodeOutputView() {
-      this.viewMode = this.viewMode === "code-split" ? "codeoutput" : "code-split";
+      this.viewMode =
+        this.viewMode === 'code-split' ? 'codeoutput' : 'code-split';
     },
   },
   components: {
@@ -276,7 +299,10 @@ export default {
 }
 
 .codelos-html-wrapper ::v-deep .html-element-menu-dropdown button:active,
-.codelos-html-wrapper ::v-deep .html-element-menu-dropdown button:focus-visible {
+.codelos-html-wrapper
+  ::v-deep
+  .html-element-menu-dropdown
+  button:focus-visible {
   background-color: transparent;
   border: none;
   color: black;
@@ -311,7 +337,6 @@ export default {
   width: 14px;
   height: 14px;
   margin: 2px;
-
   border-radius: 100%;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
   transition: all 0.4s;
@@ -323,7 +348,7 @@ export default {
   top: 1px;
   left: 1px;
   bottom: 1px;
-  content: "";
+  content: '';
 }
 .codelos-html-wrapper .view-in-pdf-input:checked + .view-in-pdf-label:before {
   background-color: #000000;
@@ -419,9 +444,9 @@ select {
 input {
   border: none;
 }
-.icon-cross{
-  padding-left:334px;
-  top:0;
+.icon-cross {
+  padding-left: 334px;
+  top: 0;
 }
 .code-split-right {
   padding-top: 0;
@@ -441,15 +466,15 @@ input {
 .split-screen {
   display: flex;
   height: 100%;
-  width:50%
+  width: 50%;
 }
 
 .left-side {
   width: 50%;
-  background-color: #f0f0f0; 
+  background-color: #f0f0f0;
   padding: 10px;
 }
-.right-side{
+.right-side {
   display: flex;
   flex-direction: row;
 }
@@ -460,8 +485,7 @@ input {
   margin-left: 839px;
 }
 
-.old-content,
-.new-content {
+.old-content .new-content {
   flex: 1;
   margin: 5px;
   padding: 10px;
