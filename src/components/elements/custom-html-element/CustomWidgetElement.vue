@@ -35,6 +35,7 @@
         </div>
         <div v-if="viewMode !== 'output'" class="code-editor" @mouseup="onMouseUp">
           <div v-html="nodeElement.value"></div>
+        
         </div>
         <div v-if="viewMode === 'split'">
           <div class="icons-overlay-right" @click="gotoOutput">
@@ -119,19 +120,22 @@
         </div>
         <div class="code-split-right">
           <div class="right-side">
-            <div class="new-content">
+            <!-- <div class="new-content"> -->
               <!-- <div v-html="nodeElement.value"></div> -->
              
-              <input
-              v-model="nodeElement.value"
-              
+              <!-- <input
+              v-model="newContent"
               class="editable-text"
-             
-            />
-            </div>
+            />-->
+            </div> 
+            <div class="new-content">
+              <div v-for="(content, index) in newContent" :key="'new-' + index">
+                <div>{{ index + 1 }}: {{ content }}</div>
+              </div>
             <div class="old-content">
-             <div v-html="oldContent"></div>
-             
+              <div v-for="(content, index) in oldContent" :key="'old-' + index">
+                <div>{{ index + 1 }}: {{ content }}</div>
+              </div>
             </div>
           </div>
           </div>
@@ -155,13 +159,12 @@ export default {
     return {
       viewMode: "output",
       selections: [],
+      newContent:[],
+      oldContent:[]
     };
   },
   methods: {
     onCodeInput(codeInput) {
-      if (this.viewMode === "code-split") {
-        this.oldContent = this.nodeElement.value;
-      }
       this.nodeElement.value = codeInput;
     },
     toggleSplitView() {
@@ -177,64 +180,42 @@ export default {
       this.viewMode = this.viewMode === "code" ? "output" : "code";
     },
     toggleSettingsView() {
-      this.oldContent = this.nodeElement.value;
       this.viewMode = "code-split";
-      console.log("this.oldContent", this.oldContent);
+      
     },
     onMouseUp() {
       const selection = window.getSelection();
       const text = selection.toString();
       if (text) {
-        const anchorNode = selection.anchorNode;
-        const parentElement = anchorNode.parentElement;
-
-        if (parentElement && parentElement.outerHTML) {
-          const start = selection.anchorOffset;
-          const end = selection.focusOffset;
+        
+        const parentElement = selection.anchorNode.parentElement;
+        if (parentElement) {
           const uniqueId = `selected-${Date.now()}`;
-          console.log(uniqueId);
-          const wrappedText = `<span id="${uniqueId}">${text}</span>`;
-          console.log("wrappedText", wrappedText);
-          parentElement.innerHTML = parentElement.innerHTML.replace(text, wrappedText);
-          this.addSelection(
+          parentElement.innerHTML = parentElement.innerHTML.replace(
             text,
-            start,
-            end,
-            parentElement.outerHTML,
-            uniqueId,
-            parentElement
+            `<span id="${uniqueId}">${text}</span>`
           );
+          this.addSelection(text, uniqueId);
+          this.oldContent.push({text})
+          console.log("oldContent",this.oldContent)
         }
       }
     },
-
-    addSelection(text, start, end, originalHTML, uniqueId, parentElement) {
+    addSelection(text, uniqueId) {
       this.selections.push({
         text,
-        start,
-        end,
         uniqueId,
         dropdownValue: "",
-        originalHTML,
-        parentElement,
+        confirmed: false,
       });
     },
     updateSelectedText(index) {
       const selection = this.selections[index];
       const spanElement = document.getElementById(selection.uniqueId);
-
       if (spanElement) {
         spanElement.textContent = selection.text;
-        const updatedHTML = spanElement.parentElement.outerHTML;
-        this.nodeElement.value = this.nodeElement.value.replace(
-          selection.originalHTML,
-          updatedHTML
-        );
-        console.log("originaldata", selection.originalHTML);
-        console.log("UPDATEhtml", updatedHTML);
-        selection.originalHTML = updatedHTML;
-        console.log("this.nodeElement.value", this.nodeElement.value);
-        this.nodeElement.value = selection.originalHTML;
+        selection.originalHTML = spanElement.parentElement.innerHTML;
+        this.newContent[index] = spanElement.textContent;
       }
     },
     gotoCodeSide() {
@@ -254,15 +235,13 @@ export default {
 
     confirmSelection(index) {
       const selection = this.selections[index];
-      console.log("selectionData", selection);
+      console.log("selectionData", selection.text);
       selection.confirmed = true;
+      this.newContent[index] = this.selections[index].text;
       console.log("sdfkdsgfgsdfgdgf", selection.confirmed);
     },
     toggleCodeOutputView() {
       this.viewMode = this.viewMode === "code-split" ? "codeoutput" : "code-split";
-    },
-    toogleSplitDataView() {
-      this.codeView = "";
     },
   },
   components: {
@@ -478,7 +457,7 @@ input {
 .right-side-data {
   width: 35% !important;
   padding-left: 100px;
-  margin-left: 960px;
+  margin-left: 839px;
 }
 
 .old-content,
