@@ -12,10 +12,8 @@
           src="../../../assets/eye.png"
           class="rounded mx-auto d-block"
           alt="..."
-          
         />
       </div>
-
       <div
         class="icon-circle-code"
         @click="toggleViewOutput"
@@ -58,7 +56,7 @@
           class="code-editor"
           @mouseup="onMouseUp"
         >
-          <div v-html="nodeElement.value"></div>
+          <div v-html="nodeElement.value" class="code-data" ref="codeEditor"></div>
         </div>
         <div v-if="viewMode === 'split'">
           <div class="icons-overlay-right" @click="gotoOutput">
@@ -213,6 +211,7 @@ export default {
             text,
             `<span id="${uniqueId}">${text}</span>`
           );
+          console.log(parentElement.innerHTML);
           this.addSelection(text, uniqueId);
           this.oldContent.push({ text, uniqueId });
           console.log('oldContent', this.oldContent);
@@ -231,21 +230,25 @@ export default {
 
     updateSelectedText(index) {
       const selection = this.selections[index];
-      const spanElement = document.getElementById(selection.uniqueId);
-      if (spanElement) {
+      const spanElement = document.getElementById(selection.uniqueId);  
+          if (spanElement) {
         this.newContent[index] = selection.text;
       }
     },
 
     updateOutputText(index) {
-      const selectedData = this.oldContent[index];
-      const uniqueId = this.selections[index].uniqueId;
-      const spanElement = document.getElementById(uniqueId);
-      if (spanElement) {
-        spanElement.innerHTML = selectedData.text;
-      }
-    },
-
+  const selectedData = this.oldContent[index];
+  const uniqueId = this.selections[index].uniqueId;
+  const spanElement = document.getElementById(uniqueId);
+  if (spanElement) {
+    spanElement.innerHTML = selectedData.text
+    let htmlContent = this.$refs.codeEditor.innerHTML; 
+    console.log('html',htmlContent)
+  htmlContent=htmlContent.replace(/<\/?span[^>]*>/g, '')
+  console.log('htm214214235346354674567l',htmlContent)
+    this.nodeElement.value=htmlContent
+  }
+},
     gotoCodeSide() {
       this.viewMode = 'code';
     },
@@ -261,7 +264,9 @@ export default {
     confirmSelection(index) {
       const selection = this.selections[index];
       if (selection.confirmed) {
-        this.selections.splice(index, 1);
+        this.oldContent.splice(index, 1);
+      this.newContent.splice(index, 1);
+      this.selections.splice(index, 1);
       } else {
         selection.confirmed = true;
         this.newContent[index] = this.selections[index].text;
@@ -271,6 +276,7 @@ export default {
       console.log("viewmode",this.viewMode)
       this.viewMode = this.viewMode === 'code-split' ? 'codeoutput' : 'code-split';
     },
+
   },
   components: {
     AceCodeEditor
@@ -451,7 +457,7 @@ input {
 }
 .icon-cross {
   padding-left: 334px;
-  top: 0;
+  padding-top: 20px;
 }
 .code-split-right {
   padding-top: 0;
