@@ -525,3 +525,25 @@ select {
   padding: 40px;
 }
 </style>
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>`substitute(Filename('', 'Page Title'), '^.', '\u&', '')`</title>
+    
+  </head>
+  <body>
+    <h1>hello</h1>
+  </body>
+</html>
+<h1>h <span id="selected-1723812426024">ellodata</span></h1>
