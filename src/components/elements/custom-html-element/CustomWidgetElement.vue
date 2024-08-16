@@ -47,7 +47,6 @@
             :key="nodeElement.id"
             @onCodeInput="onCodeInput"
             :codeValue="nodeElement.value"
-            id="getthedata"
             class="code-editor"
           />
         </div>
@@ -56,7 +55,11 @@
           class="code-editor"
           @mouseup="onMouseUp"
         >
-          <div v-html="nodeElement.value" class="code-data" ref="codeEditor"></div>
+          <div
+            v-html="nodeElement.value"
+            class="code-data"
+            ref="codeEditor"
+          ></div>
         </div>
         <div v-if="viewMode === 'split'">
           <div class="icons-overlay-right" @click="gotoOutput">
@@ -84,12 +87,11 @@
                 <option value="number">Zahl</option>
               </select>
               <img
-              :src="selection.confirmed ? dustIcon : rightIcon"
-              class="rounded mx-auto d-block"
-              :alt="selection.confirmed ? 'Remove' : 'Select'"
-              @click="confirmSelection(index)"
-            />
-             
+                :src="selection.confirmed ? dustIcon : rightIcon"
+                class="rounded mx-auto d-block"
+                :alt="selection.confirmed ? 'Remove' : 'Select'"
+                @click="confirmSelection(index)"
+              />
             </div>
           </div>
         </div>
@@ -137,7 +139,9 @@
           <div class="right-side"></div>
           <div class="new-content">
             <div v-for="(content, index) in newContent" :key="index">
-              <div><b>{{ content }}</b></div>
+              <div>
+                <b>{{ content }}</b>
+              </div>
             </div>
           </div>
           <div class="space-in-between-data"></div>
@@ -184,25 +188,26 @@ export default {
       this.nodeElement.value = codeInput;
     },
     toggleSplitView() {
-      console.log("split",this.viewMode)
+      console.log('split', this.viewMode);
       this.viewMode = this.viewMode === 'split' ? 'code' : 'split';
     },
     toggleView() {
-      console.log("output",this.viewMode)
+      console.log('output', this.viewMode);
       this.viewMode = this.viewMode === 'output' ? 'code' : 'output';
     },
     toggleViewOutput() {
-      console.log("code",this.viewMode)
+      console.log('code', this.viewMode);
       this.viewMode = this.viewMode === 'code' ? 'output' : 'code';
     },
     toggleSettingsView() {
-      console.log("code-split",this.viewMode)
+      console.log('code-split', this.viewMode);
 
       this.viewMode = 'code-split';
     },
     onMouseUp() {
       const selection = window.getSelection();
       const text = selection.toString();
+      console.log("selection.anchorNode",selection.anchorNode.parentElement)
       if (text) {
         const parentElement = selection.anchorNode.parentElement;
         if (parentElement) {
@@ -215,7 +220,6 @@ export default {
           this.addSelection(text, uniqueId);
           this.oldContent.push({ text, uniqueId });
           console.log('oldContent', this.oldContent);
-
         }
       }
     },
@@ -230,30 +234,42 @@ export default {
 
     updateSelectedText(index) {
       const selection = this.selections[index];
-      const spanElement = document.getElementById(selection.uniqueId);  
-          if (spanElement) {
+      const spanElement = document.getElementById(selection.uniqueId);
+      if (spanElement) {
         this.newContent[index] = selection.text;
       }
     },
-
     updateOutputText(index) {
-  const selectedData = this.oldContent[index];
-  const uniqueId = this.selections[index].uniqueId;
-  const spanElement = document.getElementById(uniqueId);
-  if (spanElement) {
-    spanElement.innerHTML = selectedData.text
-    let htmlContent = this.$refs.codeEditor.innerHTML; 
-    console.log('html',htmlContent)
-  htmlContent=htmlContent.replace(/<\/?span[^>]*>/g, '')
-  console.log('htm214214235346354674567l',htmlContent)
-    this.nodeElement.value=htmlContent
-  }
-},
+      const selectedData = this.oldContent[index];
+      const uniqueId = this.selections[index].uniqueId;
+      const spanElement = document.getElementById(uniqueId);
+
+      if (spanElement) {
+        spanElement.innerHTML = selectedData.text;
+        let htmlContent = this.$refs.codeEditor.innerHTML;
+        console.log('datacontent', htmlContent);
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlContent, 'text/html');
+        console.log('doc', doc);
+        var allText = doc.all[0].textContent;
+        console.log("alltext",allText);
+        doc.querySelectorAll('font').forEach((fontTag) => {
+          fontTag.replaceWith(...fontTag.childNodes);
+        });
+        console.log(doc.body);
+        console.log('doc.body.innerhtml', doc.body.innerHTML);
+        const cleanedHtmlContent = doc.body.innerHTML;
+        console.log('Cleaned hmtld:', cleanedHtmlContent);
+        this.nodeElement.value = cleanedHtmlContent;
+        console.log(this.nodeElement.value)
+      }
+    },
+
     gotoCodeSide() {
       this.viewMode = 'code';
     },
     gotoOutput() {
-      console.log("gotooutput",this.viewMode)
+      console.log('gotooutput', this.viewMode);
       this.viewMode = this.viewMode === 'codeoutput' ? 'split' : 'codeoutput';
     },
     toggleSplit() {
@@ -265,21 +281,21 @@ export default {
       const selection = this.selections[index];
       if (selection.confirmed) {
         this.oldContent.splice(index, 1);
-      this.newContent.splice(index, 1);
-      this.selections.splice(index, 1);
+        this.newContent.splice(index, 1);
+        this.selections.splice(index, 1);
       } else {
         selection.confirmed = true;
         this.newContent[index] = this.selections[index].text;
       }
     },
     toggleCodeOutputView() {
-      console.log("viewmode",this.viewMode)
-      this.viewMode = this.viewMode === 'code-split' ? 'codeoutput' : 'code-split';
+      console.log('viewmode', this.viewMode);
+      this.viewMode =
+        this.viewMode === 'code-split' ? 'codeoutput' : 'code-split';
     },
-
   },
   components: {
-    AceCodeEditor
+    AceCodeEditor,
   },
 };
 </script>
@@ -465,6 +481,7 @@ input {
   flex-direction: row;
   right: 0;
   height: 200px;
+  position: absolute;
 }
 .code-split-view {
   display: flex;
@@ -493,7 +510,7 @@ input {
 .right-side-data {
   width: 35% !important;
   padding-left: 100px;
-  margin-left: 839px;
+  margin-left: 666px;
 }
 
 .old-content .new-content {
