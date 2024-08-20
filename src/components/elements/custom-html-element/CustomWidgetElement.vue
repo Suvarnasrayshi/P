@@ -9,7 +9,7 @@
         v-if="viewMode === 'code'"
       >
         <img
-          src="../../../assets/eye.png"
+          src="../../../assets/code.png"
           class="rounded mx-auto d-block"
           alt="..."
         />
@@ -20,7 +20,7 @@
         v-if="viewMode === 'output'"
       >
         <img
-          src="../../../assets/code.png"
+          src="../../../assets/eye.png"
           class="rounded mx-auto d-block"
           alt="..."
         />
@@ -47,6 +47,7 @@
             :key="nodeElement.id"
             @onCodeInput="onCodeInput"
             :codeValue="nodeElement.value"
+            id="getthedata"
             class="code-editor"
           />
         </div>
@@ -70,7 +71,9 @@
             <img src="../../../assets/cross.svg" alt="Wrong" />
           </div>
           <div class="selected-content">
+            <div class="content">
             💡Selektiere ein Element um es individueller gestallten zu können
+          </div>
             <div
               v-for="(selection, index) in selections"
               :key="selection.id"
@@ -82,7 +85,7 @@
                 class="editable-text"
                 :disabled="selection.confirmed"
               />
-              <select v-model="selection.dropdownValue" class="dropdown-select">
+              <select v-model="selection.dropdownValue" class="dropdown-select" id="typeSelector">
                 <option value="text">Text</option>
                 <option value="number">Zahl</option>
               </select>
@@ -148,11 +151,16 @@
           <div class="old-content">
             <div v-for="(content, index) in oldContent" :key="index">
               <input
+              type="text"
                 v-model="content.text"
                 @input="updateOutputText(index)"
-                class="editable-text"
-              />
+                class="editable-text" 
+                id="dynamicInput"
+                />
+               
+             
             </div>
+           
           </div>
         </div>
       </div>
@@ -203,13 +211,15 @@ export default {
       console.log('code-split', this.viewMode);
 
       this.viewMode = 'code-split';
+     
     },
     onMouseUp() {
       const selection = window.getSelection();
       const text = selection.toString();
-      console.log("selection.anchorNode",selection.anchorNode.parentElement)
+      console.log("selection.anchorNode",selection.anchorNode)
       if (text) {
         const parentElement = selection.anchorNode.parentElement;
+        console.log(parentElement)
         if (parentElement) {
           const uniqueId = `selected-${Date.now()}`;
           parentElement.innerHTML = parentElement.innerHTML.replace(
@@ -224,6 +234,7 @@ export default {
       }
     },
     addSelection(text, uniqueId) {
+      console.log("text",text)
       this.selections.push({
         text,
         uniqueId,
@@ -250,11 +261,9 @@ export default {
         console.log('datacontent', htmlContent);
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlContent, 'text/html');
-        console.log('doc', doc);
-        var allText = doc.all[0].textContent;
-        console.log("alltext",allText);
-        doc.querySelectorAll('font').forEach((fontTag) => {
-          fontTag.replaceWith(...fontTag.childNodes);
+        console.log(doc)
+        doc.querySelectorAll('font').forEach((fontElementTag) => {
+          fontElementTag.replaceWith(...fontElementTag.childNodes);
         });
         console.log(doc.body);
         console.log('doc.body.innerhtml', doc.body.innerHTML);
@@ -263,6 +272,7 @@ export default {
         this.nodeElement.value = cleanedHtmlContent;
         console.log(this.nodeElement.value)
       }
+    
     },
 
     gotoCodeSide() {
@@ -271,11 +281,14 @@ export default {
     gotoOutput() {
       console.log('gotooutput', this.viewMode);
       this.viewMode = this.viewMode === 'codeoutput' ? 'split' : 'codeoutput';
+     
     },
     toggleSplit() {
       console.log('toggle', this.viewMode);
       this.viewMode = this.viewMode === 'codeoutput' ? 'split' : 'codeoutput';
       console.log('toggle1', this.viewMode);
+      
+     
     },
     confirmSelection(index) {
       const selection = this.selections[index];
@@ -285,8 +298,22 @@ export default {
         this.selections.splice(index, 1);
       } else {
         selection.confirmed = true;
+        document.getElementById("typeSelector").disabled=true;
         this.newContent[index] = this.selections[index].text;
+        const typeSelector = document.getElementById('typeSelector');
+        console.log('type',typeSelector)
+        const dynamicInput = document.getElementById('dynamicInput');
+        console.log('dynamicInput',dynamicInput.type)
+        const selectedType=typeSelector.value;
+        console.log('selectedType',selectedType)
+        if(selectedType==='text'){
+          dynamicInput.type=selectedType
+        }
+        if(selectedType==='number'){
+          dynamicInput.type=selectedType
+        }
       }
+      
     },
     toggleCodeOutputView() {
       console.log('viewmode', this.viewMode);
@@ -521,29 +548,11 @@ input {
 select {
   width: 70px;
 }
+.content{
+user-select: none;
+}
+
 .space-in-between-data {
   padding: 40px;
 }
 </style>
-
-
-
-
-
-
-
-
-
-
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>`substitute(Filename('', 'Page Title'), '^.', '\u&', '')`</title>
-    
-  </head>
-  <body>
-    <h1>hello</h1>
-  </body>
-</html>
-<h1>h <span id="selected-1723812426024">ellodata</span></h1>
